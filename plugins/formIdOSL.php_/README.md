@@ -1,7 +1,7 @@
 # Plugin form-actualizacion-osl
 
 - **Plugin Name**: form-actualizacion-osl
-- **Description**: Plugin que recibirá el id de un procucto del Huge-ID Catalog y precargará sus datos en el formulario con el objetivo de solicitar una actualización del producto
+- **Description**: Plugin que recibirá el id de un procucto del Huge-IT Catalog y precargará sus datos en el formulario con el objetivo de solicitar una actualización del producto
 - **Version**: 0.1
 - **Author**: Daniel Daher Pérez
 - **License**: GPL
