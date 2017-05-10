@@ -4,7 +4,7 @@ Catálogo de Software de la Oficina de Sofware Libre de la Universidad de La Lag
 
 - **Autor**: Daniel Daher Pérez
 - Realizado con motivo del as **Prácticas Externas** de la ULL en el curso 2016/2017
-- [Enlace](10.6.128.3/openpyme) actual del catálogo
+- [Enlace](http://10.6.128.3/openpyme/) actual del catálogo
 
 En [Manual del OSL - OC](https://github.com/tic-ull/OSL-OC/blob/master/ManualOSL-OC.pdf "Manual") se encuentra un manual para la correcta administración del **OSL-OC**.
 
