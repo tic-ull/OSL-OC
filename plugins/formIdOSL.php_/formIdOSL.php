@@ -13,46 +13,33 @@ add_action('template_redirect', 'cargarDatos');
 
 
 function cargarDatos(){
-
+global $wpdb;
   
 	if (is_page('actualizar')) {
 	  
 	  $idUpdate = $_GET['id'];
 	
 		if ($idUpdate > 37) { // despues de 37 empiezan los id de productos
-				  
-		  $servername = "localhost";
-		  $username = "root";
-		  $password = "root";
-		  $dbname = "openpyme";
 
-	// Create connection
-		  $conn = new mysqli($servername, $username, $password, $dbname);
+		 $sql = "SELECT * FROM wp_huge_it_catalog_products WHERE id=" . $idUpdate;
 
-	// Check connection
-		  if ($conn->connect_error) {
-		    die("Connection failed: " . $conn->connect_error);
-		  }
 
-		  $sql = "SELECT * FROM wp_huge_it_catalog_products WHERE id=" . $idUpdate;
-		  $result = $conn->query($sql);
 
-		  if ($result->num_rows > 0) {
-		  // output data of each row
-		    $row = $result->fetch_assoc();
-		     
-		      $app = $row["name"];
-		      $idCategoria = $row["catalog_id"];
-		      $descripcion = $row["description"];
-		      $parametros = $row["parameters"];
-		  } 
-		  else {
-		    echo "0 results";
-		  }
-		  
+		 $results = $wpdb->get_results($sql);
+
+
+	foreach ( $results as $fila ) {
+
+		      $app = $fila->name;
+		      $idCategoria = $fila->catalog_id;
+		      $descripcion = $fila->description;
+		      $parametros = $fila->parameters;
+
+
+		}
+
 		  // para ver los acentos y caracteres especiales correctamente
-		  $descripcion = utf8_encode($descripcion);
-		  $parametros = utf8_encode($parametros);
+		
 	
 		  // variable que contendra nuestro script de js
 		  // los id usados aqui solo sirven para el formulario de actualizacion original, si se modifica
@@ -100,7 +87,7 @@ function cargarDatos(){
 		  
 		  echo $fill;
 		  
-		  $conn->close();
+		//  $conn->close();
 		 
 
 	      }
