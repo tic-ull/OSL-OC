@@ -1,0 +1,109 @@
+<div class = "panel-group" id = "productos">
+</div>
+
+<?php
+		  $servername = DB_HOST;
+		  $username = DB_USER;
+          $password = DB_PASSWORD;
+		  $dbname = DB_NAME;
+
+	// Create connection
+		  $conn = new mysqli($servername, $username, $password, $dbname);
+
+	// Check connection
+		  if ($conn->connect_error) {
+		    die("Connection failed: " . $conn->connect_error);
+		  }
+
+		  $sql = "SELECT id, name, catalog_id, description, image_url
+			  FROM `wp_huge_it_catalog_products`
+                          WHERE published = 'on'
+			  GROUP BY id
+			  HAVING COUNT( * ) <=5
+			  ORDER BY id DESC";
+			  
+		  $descripcion = array();
+		  $IdCatalogo = array();		  
+		  $IdProducto = array();
+
+		  $nombre = array();
+		  $imagen = array();
+		  
+		  $producto = array();
+
+		  
+		  $result = $conn->query($sql);
+		
+		  if ($result->num_rows > 0) {
+		  // output data of each row
+		while($row = $result->fetch_assoc()) {
+		
+		      $com = $row["description"];
+		      
+		    if (strlen($row["description"]) > 125)
+		      $com = substr($com,0,125).'...';
+		      
+		      array_push($IdProducto, $row["id"]);
+		      array_push($descripcion, utf8_encode($com));
+		      array_push($imagen, chop($row["image_url"], ';'));		      
+		      array_push($IdCatalogo, $row["catalog_id"]);
+		      array_push($nombre, utf8_encode($row["name"]));
+		  }
+		     
+		  }
+		  
+		  else {
+		    echo "0 results";
+		  }
+		  
+		  $catalogos = array("10"=>"bi", "11"=>"cms", "12"=>"crm", "13"=>"dist-emp", "14"=>"dms", "15"=>"ecommerce", "16"=>"erp", "17"=>"gf", "18"=>"si", "19"=>"gw", "20"=>"internet", "21"=>"ofi", "22"=>"gp", "23"=>"pv", "24"=>"util", "25" => "diseno", "26" => "multimedia", "28" => "arquitectura", "29" => "bio", "30" => "edu", "31" => "elec", "32" => "fisica", "33" => "informatica", "34" => "matematicas", "35" => "medicina");
+		   
+		  for ($x = 0; $x < count($IdProducto); $x++) {
+  
+	$productoAux = '<a href= \"' . site_url() . '/catalogo/' . $catalogos[$IdCatalogo[$x]] .'/?single_prod_id=' . $IdProducto[$x] . '\">' . $nombre[$x] . '</a>';
+		    
+		     
+		      array_push($producto, $productoAux);
+		  
+		    }
+		    
+
+   $productos = '<script type=\'text/javascript\'>
+	  		  
+		  document.getElementById("productos").innerHTML ="<div class=\"panel panel-default\">" +
+    "<div class=\"panel-heading\"> <img src=\"'.$imagen[0].'\" alt=\"p1\" height=\"30px\" width=\"30px\" >  | ' . $producto[0] . ' </div>" +
+       "<div class=\"panel-body\">" +
+           "'. $descripcion[0].'" +
+       "</div></div>" +
+
+    "<div class=\"panel panel-info\">" +
+	"<div class=\"panel-heading\"><img src=\"'.$imagen[1].'\" alt=\"p1\" height=\"30px\" width=\"30px\" >  | ' . $producto[1] . '</div>" +
+	    "<div class=\"panel-body\">" +
+	      "'.$descripcion[1].'" +
+	    "</div></div>" +
+
+    "<div class=\"panel panel-default\">" +
+	"<div class=\"panel-heading\"><img src=\"'.$imagen[2].'\" alt=\"p1\" height=\"30px\" width=\"30px\" >  | ' . $producto[2] . '</div>"+
+	    "<div class=\"panel-body\">" +
+		"'. $descripcion[2] .'" +
+	    "</div></div>" +
+
+    "<div class=\"panel panel-info\">" +
+	"<div class=\"panel-heading\"><img src=\"'.$imagen[3].'\" alt=\"p1\" height=\"30px\" width=\"30px\" >  | ' . $producto[3] . '</div>" +
+	    "<div class=\"panel-body\">" +
+		"'. $descripcion[3] .'" +
+	    "</div></div>" +
+
+    "<div class=\"panel panel-default\">" +
+	"<div class=\"panel-heading\"><img src=\"'.$imagen[4].'\" alt=\"p1\" height=\"30px\" width=\"30px\" >  | ' . $producto[4] . '</div>" +
+	    "<div class=\"panel-body\">" +
+		"'. $descripcion[4] .'"+
+	    "</div>" +
+    "</div>";
+
+
+
+  </script>';
+
+  echo $productos;  
+?>
