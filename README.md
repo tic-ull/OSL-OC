@@ -3,7 +3,7 @@
 Catálogo de Software de la Oficina de Sofware Libre de la Universidad de La Laguna
 
 - **Autor**: Daniel Daher Pérez
-- Realizado con motivo del as **Prácticas Externas** de la ULL en el curso 2016/2017
+- Realizado con motivo de las **Prácticas Externas** de la ULL en el curso 2016/2017
 - [Enlace](http://openpyme.osl.ull.es/) en producción del catálogo
 - Licencia: GPL
 
