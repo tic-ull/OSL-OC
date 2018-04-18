@@ -283,6 +283,177 @@ function gen_string_product_catalog_search($serch_word, $wordpress_query_post)
 
 ///////////////////// end filter
 
+// BUSCADOR GLOBAL
+add_shortcode( 'huge-it-catalog-global-search', 'global_search_shortcode' );
+
+function global_search_shortcode() {
+    $search_string = "";
+    // GLOBAL SEARCH INPUT
+    $output = '';
+            $output .= '<section id="huge_it_catalog_content">';
+                // Search input text block
+                $output .= '<div id="search_block">';
+                    $output .= '<form method="get">';
+                        $output .= '<input type="text" name="search-product">';
+                        $output .= '<button id="search_button" type="submit">Buscar software libre<button>';
+                        // $output .= '<i class=""></i>';
+                    $output .= '</form>';
+                $output .= '</div>';
+    if ( !empty( $_GET['search-product'] ) ) {
+        global $wpdb;
+        $search_string = sanitize_text_field( $_GET['search-product'] );
+        // Prepare query to retrieve products from database
+        $product_query = 'select * from ' . $wpdb->prefix;
+        $product_query .= 'huge_it_catalog_products';
+        $search_term = '%' . $search_string . '%';
+        $product_query .= " where name like '%s' ";
+        // Query
+        $product_items = $wpdb->get_results( $wpdb->prepare(
+        $product_query, $search_term ), ARRAY_A );
+        // Check if any products were found
+        if ( !empty( $product_items ) ) {
+            // Show catalog
+            $output .= '<div id="huge_it_catalog_container" class="clearfix">';
+            foreach ( $product_items as $product ) {
+                // product
+                $output .= '<div id="product_item">';
+                    // left block
+                    $output .= '<div id="left_block">';
+                        $output .= '<div id="main_image_block">';
+                            $output .= '<a href="' . $product['image_url'] . '">';
+                            $output .= '<img id="product_image" src="' . $product['image_url'] . '"></a>';
+                        $output .= '</div>';
+                    $output .= '</div>';
+                    // right block
+                    $output .= '<div id="right_block">';
+                        $output .= '<div id="title_block"><h3>' . $product['name'] . '</h3></div>';
+                        $output .= '<div id="description_block">' . $product['description'] . '</div>';
+                    $output .= '</div>';
+                $output .= '</div>';
+            }
+            $output .= '</div>';
+        }
+    }
+    $output .= '</div>';
+    return $output;
+}
+
+// ESTILOS
+?> 
+<style>
+/** Barra de búsqueda **/
+    /** search_block **/
+    #search_block {
+        text-align: left;
+        margin: 5px;
+    }
+
+    /*** search_block form **/
+    #search_block > form {
+        position: relative;
+	    height: 36px;
+	    display: inline-block;
+	    width: 94%;
+	    overflow: hidden;
+	    border-radius: 0px;
+	    border: 1px solid #dedede;	
+    }
+    /*** text input **/
+    #search_block > form > input {
+        width: 100%;
+        height: 36px;		
+        display: block;	
+        position: absolute;
+        padding:5px 10px;
+        top: 0;
+        left: 0;
+        border: none;
+        color: #272717;
+        background: #FFFFFF;
+        margin: 0;
+    }
+    /*** button input ***/
+    #search_block > form > #search_button {
+        width: 20%;
+        height: 36px;		
+        display: block;
+        position: absolute;
+        padding:0 10px 5px;
+        top: 0;
+        right: 0%;	
+        border-top-right-radius: 0px;
+        border: 0;
+        background: #7A3B7A;
+        color: #ffffff;
+        margin: 0;
+        font-weight: bold;
+    }
+
+    #search_block > form > #search_button > :hover {
+	    background: #718B94;
+    }
+    /** Catálogo completo encontrado **/
+    #huge_it_catalog_container {
+        position: relative;
+        overflow: hidden;
+    }
+
+    #product_item {
+        position: relative;
+        left: 0px;
+        top: 0px;
+        transform: translated3d(0px, 0px, 0px);
+        width: 93%;
+        margin: 10px 0px 20px 0px;
+        padding: 2%;
+        clear: both;
+        overflow: hidden;
+        border: 1px solid #dedede;
+        background: #f9f9f9;
+    }
+
+    #product_item > div {
+        display: table-cell;
+    }
+
+    #left_block {
+        padding-right: 10px;
+    }
+
+    #main_image_block {
+        clear: both;
+        width: 240px;
+    }
+
+    #product_image {
+        width: 240px;
+    }
+
+    #right_block {
+        vertical-align: top;
+    }
+
+    #title_block {
+        margin-top: 3px;
+    }
+
+    #title_block > h3 {
+        margin: 0px;
+        padding: 0px;
+        font-weight: normal;
+        font-size: 18px !important;
+        line-height: 22px !important;
+        color: #0074a2;
+    }
+
+    #description_block {
+        margin-top: 15px;
+        font-weight: normal;
+        font-size: 14px;
+        color: #555555;
+    }
+</style><?php
+
 add_filter('admin_head', 'huge_it_catalog_ShowTinyMCE');
 function huge_it_catalog_ShowTinyMCE()
 {
