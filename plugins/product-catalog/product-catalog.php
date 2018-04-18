@@ -294,8 +294,8 @@ function global_search_shortcode() {
                 // Search input text block
                 $output .= '<div id="search_block">';
                     $output .= '<form method="get">';
-                        $output .= '<input type="text" name="search-product">';
-                        $output .= '<button id="search_button" type="submit">Buscar software libre<button>';
+                        $output .= '<input type="text" name="search-product"></input>';
+                        $output .= '<button id="search_button" type="submit">Buscar software libre</button>';
                         // $output .= '<i class=""></i>';
                     $output .= '</form>';
                 $output .= '</div>';
@@ -328,13 +328,14 @@ function global_search_shortcode() {
                     $output .= '<div id="right_block">';
                         $output .= '<div id="title_block"><h3>' . $product['name'] . '</h3></div>';
                         $output .= '<div id="description_block">' . $product['description'] . '</div>';
+                        $output .= '<div><a href="!#"><button id="product_button" type="submit">Ver aplicación</button></a></div>';
                     $output .= '</div>';
                 $output .= '</div>';
             }
             $output .= '</div>';
         }
     }
-    $output .= '</div>';
+    $output .= '</section>';
     return $output;
 }
 
@@ -346,6 +347,7 @@ function global_search_shortcode() {
     #search_block {
         text-align: left;
         margin: 5px;
+        margin-left: 0px;
     }
 
     /*** search_block form **/
@@ -403,7 +405,8 @@ function global_search_shortcode() {
         left: 0px;
         top: 0px;
         transform: translated3d(0px, 0px, 0px);
-        width: 93%;
+        width: 93.5%;
+        height: 300px;
         margin: 10px 0px 20px 0px;
         padding: 2%;
         clear: both;
@@ -439,6 +442,7 @@ function global_search_shortcode() {
 
     #title_block > h3 {
         margin: 0px;
+        margin-left: 20px;
         padding: 0px;
         font-weight: normal;
         font-size: 18px !important;
@@ -448,9 +452,25 @@ function global_search_shortcode() {
 
     #description_block {
         margin-top: 15px;
+        margin-left: 22px;
         font-weight: normal;
         font-size: 14px;
         color: #555555;
+    }
+
+    #product_button {
+        width: 20%;
+        height: 36px;		
+        display: block;
+        position: absolute;
+        bottom: 20px;
+        right: 20px;
+        border-top-right-radius: 0px;
+        border: 0;
+        background: #7A3B7A;
+        color: #ffffff;
+        margin: 0;
+        font-weight: bold;
     }
 </style><?php
 
