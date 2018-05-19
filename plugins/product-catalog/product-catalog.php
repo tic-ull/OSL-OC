@@ -292,11 +292,11 @@ add_action('wp_enqueue_scripts', 'huge_it_catalog_global_search_set_scripts');
  */
 function huge_it_catalog_global_search_set_scripts() {
 
-    // if (!is_home()) return;
+    wp_enqueue_script('jquery-ui-autocomplete');
     wp_register_script('huge_it_catalog_gs_ajax_script', plugin_dir_url(__FILE__) . '/js/ajax-global-search.js', array('jquery'), true);
     wp_enqueue_script('huge_it_catalog_gs_ajax_script');
-    wp_localize_script('huge_it_catalog_gs_ajax_script', 'huge_it_catalog_gs_vars', ['ajaxurl'=>admin_url('admin-ajax.php')]);
-
+    wp_localize_script('huge_it_catalog_gs_ajax_script', 'huge_it_catalog_gs_vars',
+    ['ajaxurl'=>admin_url('admin-ajax.php'), 'productNames'=>huge_it_catalog_productNames()]);
     wp_enqueue_style('products', plugins_url('style/global-search.css', __FILE__));
     include_once(plugin_dir_url(__FILE__) . 'Front_end/search_catalog_front_end');
 }
@@ -311,7 +311,7 @@ function huge_it_catalog_global_search_shortcode() {
             // Search input text block
             $output .= '<div id="search_block">';
                 $output .= '<form method="post">';
-                    $output .= '<input id="fromSearchProduct" type="text" name="search-product"></input>';
+                    $output .= '<input id="fromSearchProduct" type="search" name="search-product"></input>';
                     $output .= '<button id="search_button" class="show_software">Buscar software libre</button>';
                 $output .= '</form>';
             $output .= '</div>';
@@ -334,8 +334,8 @@ function huge_it_catalog_listProducts() {
         global $wpdb;
         $search_string = sanitize_text_field( $_POST['from_product'] );
         // Prepare query to retrieve products from database
-        $product_query = 'SELECT name, image_url, description FROM ' . $wpdb->prefix;
-        $product_query .= 'huge_it_catalog_products';
+        $product_query = 'SELECT name, image_url, description FROM ';
+        $product_query .= $wpdb->prefix . 'huge_it_catalog_products';
         $search_term = '%' . $search_string . '%';
         $product_query .= " WHERE name LIKE '%s' ";
         $product_query .= 'GROUP BY(name)';
@@ -368,6 +368,23 @@ function huge_it_catalog_listProducts() {
         echo $output;
     }
     wp_die();
+}
+
+function huge_it_catalog_productNames() {
+    global $wpdb;
+    // Prepare query to retrieve products from database
+    $product_query = 'SELECT DISTINCT name FROM ';
+    $product_query .= $wpdb->prefix . 'huge_it_catalog_products';
+    // Query
+    $product_items = $wpdb->get_results( $wpdb->prepare(
+    $product_query, $search_term ), ARRAY_A );
+    // Check if any products were found
+    if ( !empty( $product_items ) ) {
+        foreach ( $product_items as $product ) {
+            $product_names[] = $product['name'];
+        }
+    }
+    return $product_names;
 }
 
 add_filter('admin_head', 'huge_it_catalog_ShowTinyMCE');
