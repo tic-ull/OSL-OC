@@ -283,28 +283,27 @@ function gen_string_product_catalog_search($serch_word, $wordpress_query_post)
 
 ///////////////////// end filter
 
-// BUSCADOR GLOBAL
-add_action('wp_enqueue_scripts', 'hit_global_search_set_scripts');
-
+/*** BUSCADOR GLOBAL ***/
+add_action('wp_enqueue_scripts', 'huge_it_catalog_global_search_set_scripts');
 /**
  * Funcion que incluye el Javascript que realiza la llamada a Ajax, 
  * el fichero admin-ajax.php de wordpress y los estilos del buscador
  * global.
  */
-function hit_global_search_set_scripts() {
+function huge_it_catalog_global_search_set_scripts() {
 
     // if (!is_home()) return;
-    wp_register_script('hit_gs_ajax_script', plugin_dir_url(__FILE__) . '/js/ajax-global-search.js', array('jquery'), true);
-    wp_enqueue_script('hit_gs_ajax_script');
-
-    wp_localize_script('hit_gs_ajax_script', 'hit_gs_vars', ['ajaxurl'=>admin_url('admin-ajax.php')]);
+    wp_register_script('huge_it_catalog_gs_ajax_script', plugin_dir_url(__FILE__) . '/js/ajax-global-search.js', array('jquery'), true);
+    wp_enqueue_script('huge_it_catalog_gs_ajax_script');
+    wp_localize_script('huge_it_catalog_gs_ajax_script', 'huge_it_catalog_gs_vars', ['ajaxurl'=>admin_url('admin-ajax.php')]);
 
     wp_enqueue_style('products', plugins_url('style/global-search.css', __FILE__));
+    include_once(plugin_dir_url(__FILE__) . 'Front_end/search_catalog_front_end');
 }
 
-add_shortcode( 'huge-it-catalog-global-search', 'global_search_shortcode' );
+add_shortcode( 'huge-it-catalog-global-search', 'huge_it_catalog_global_search_shortcode' );
 
-function global_search_shortcode() {
+function huge_it_catalog_global_search_shortcode() {
     $search_string = "";
     // GLOBAL SEARCH INPUT
     $output = '';
@@ -314,11 +313,10 @@ function global_search_shortcode() {
                 $output .= '<form method="post">';
                     $output .= '<input id="fromSearchProduct" type="text" name="search-product"></input>';
                     $output .= '<button id="search_button" class="show_software">Buscar software libre</button>';
-                    // $output .= '<i class=""></i>';
                 $output .= '</form>';
             $output .= '</div>';
-
         // Show catalog
+        $output .= '<div style="display:none" id="dvloader"><img src="'. plugins_url('images/load_more_icon_4.gif', __FILE__) .'" /></div>';
         $output .= '<div id="huge_it_catalog_container" class="products-list"></div>';
     $output .= '</section>';
     return $output;
@@ -326,7 +324,6 @@ function global_search_shortcode() {
 /**
  * Registra las funciones que serán llamadas cuando se reciben las peticiones AJAX.
  * El registro es para usuarios registrados y no registrados.
- *
 */
 add_action( 'wp_ajax_nopriv_huge_it_catalog_listProducts', 'huge_it_catalog_listProducts' );
 add_action( 'wp_ajax_huge_it_catalog_listProducts', 'huge_it_catalog_listProducts');
@@ -337,10 +334,11 @@ function huge_it_catalog_listProducts() {
         global $wpdb;
         $search_string = sanitize_text_field( $_POST['from_product'] );
         // Prepare query to retrieve products from database
-        $product_query = 'select * from ' . $wpdb->prefix;
+        $product_query = 'SELECT name, image_url, description FROM ' . $wpdb->prefix;
         $product_query .= 'huge_it_catalog_products';
         $search_term = '%' . $search_string . '%';
-        $product_query .= " where name like '%s' ";
+        $product_query .= " WHERE name LIKE '%s' ";
+        $product_query .= 'GROUP BY(name)';
         // Query
         $product_items = $wpdb->get_results( $wpdb->prepare(
         $product_query, $search_term ), ARRAY_A );
@@ -360,12 +358,12 @@ function huge_it_catalog_listProducts() {
                     $output .= '<div id="right_block">';
                         $output .= '<div id="title_block"><h3>' . $product['name'] . '</h3></div>';
                         $output .= '<div id="description_block">' . $product['description'] . '</div>';
-                        $output .= '<div><a href="!#"><button id="product_button" type="submit">Ver aplicación</button></a></div>';
+                        $output .= '<div><a href="' .$product['single_product_url_type'] . '"><button id="product_button" type="submit">Ver aplicación</button></a></div>';
                     $output .= '</div>';
                 $output .= '</div>';
             }
         } else {
-            $output .= '<p>No se encontro el software solicitado</p>';
+            $output .= '<p>No se encontro el software solicitado. <a href="anadir-producto">Añadir software solicitado</a></p>';
         }
         echo $output;
     }

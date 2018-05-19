@@ -128,3 +128,11 @@
         margin: 0;
         font-weight: bold;
     }
+
+    #huge_it_catalog_content > #dvloader {
+        width: 5%;
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: 40px;
+    }
