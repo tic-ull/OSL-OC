@@ -13,6 +13,7 @@ jQuery(function($) {
           $("#dvloader").fadeOut(1);
           $('.products-list').html( data );
           $('.products-list').fadeIn(500);
+          $('.ui-autocomplete').hide();
       },
       error: function( jqXHR, textStatus, errorThrown ) {
         if (jqXHR.status === 404) {
@@ -39,7 +40,20 @@ jQuery(function($) {
   });
 
   $('#fromSearchProduct').autocomplete({
-    source: huge_it_catalog_gs_vars.productNames,
+    source: function (request, response) {
+      $.ajax({
+        type: 'POST', 
+        url: huge_it_catalog_gs_vars.ajaxurl,
+        dataType: 'json',
+        data: {
+          action: 'huge_it_catalog_productNames',
+          from_product: document.getElementById('fromSearchProduct').value
+        },
+        success: function (data) {
+          response( data );
+        }
+      })
+    },
     select: function(event) {
       event.preventDefault();
       searchProducts();
