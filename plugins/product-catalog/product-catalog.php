@@ -335,16 +335,27 @@ function huge_it_catalog_listProducts() {
         $search_string = sanitize_text_field( $_POST['from_product'] );
         $search_term = "'%" . $search_string . "%'";
         // Prepare query to retrieve products from database
-        $product_query = 'SELECT name, image_url, description FROM ';
-        $product_query .= $wpdb->prefix . 'huge_it_catalog_products';
-        $product_query .= " WHERE name OR description LIKE " . $search_term;
-        $product_query .= ' GROUP BY(name);';
+        $product_query = 'SELECT p1.name, p1.image_url, p1.description, p1.id, p2.single_product_url_type
+                          FROM ' . $wpdb->prefix . 'huge_it_catalog_products AS p1, ' 
+                                . $wpdb->prefix . 'huge_it_catalog_products AS p2, '
+                                . $wpdb->prefix . 'huge_it_catalogs AS catalogs
+                          WHERE p1.name OR p1.description LIKE ' . $search_term .
+                          ' AND p1.catalog_id = catalogs.id
+                          AND p2.name = catalogs.name';
         // Query
-        $product_items = $wpdb->get_results( $wpdb->prepare(
-        $product_query, $search_term ), ARRAY_A );
+        $product_items = $wpdb->get_results( $product_query, ARRAY_A );
+        // Delete duplicated rows with duplicated names
+        $unique_product_items = array();
+        $aux = array();
+        foreach ( $product_items as $product ) {
+            if ( !in_array( $product['name'], $array )) {
+                $array[] = $product['name'];
+                $unique_product_items[] = $product;
+            }
+        }
         // Check if any products were found
-        if ( !empty( $product_items ) ) {
-            foreach ( $product_items as $product ) {
+        if ( !empty( $unique_product_items ) ) {
+            foreach ( $unique_product_items as $product ) {
                 // product
                 $output .= '<div id="product_item">';
                     // left block
@@ -358,7 +369,7 @@ function huge_it_catalog_listProducts() {
                     $output .= '<div id="right_block">';
                         $output .= '<div id="title_block"><h3>' . $product['name'] . '</h3></div>';
                         $output .= '<div id="description_block">' . $product['description'] . '</div>';
-                        $output .= '<div><a href="' .$product['single_product_url_type'] . '"><button id="product_button" type="submit">Ver aplicación</button></a></div>';
+                        $output .= '<div><a href="' . $product['single_product_url_type'] . '?single_prod_id=' . $product['id'] . '"><button id="product_button" type="submit">Ver aplicación</button></a></div>';
                     $output .= '</div>';
                 $output .= '</div>';
             }
