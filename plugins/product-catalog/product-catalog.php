@@ -298,7 +298,6 @@ function huge_it_catalog_global_search_set_scripts() {
     wp_localize_script('huge_it_catalog_gs_ajax_script', 'huge_it_catalog_gs_vars',
     ['ajaxurl'=>admin_url('admin-ajax.php')]);
     wp_enqueue_style('products', plugins_url('style/global-search.css', __FILE__));
-    include_once(plugin_dir_url(__FILE__) . 'Front_end/search_catalog_front_end');
 }
 
 add_shortcode( 'huge-it-catalog-global-search', 'huge_it_catalog_global_search_shortcode' );
@@ -381,7 +380,6 @@ function huge_it_catalog_listProducts() {
     wp_die();
 }
 
-
 add_action( 'wp_ajax_nopriv_huge_it_catalog_productNames', 'huge_it_catalog_productNames' );
 add_action( 'wp_ajax_huge_it_catalog_productNames', 'huge_it_catalog_productNames');
 
@@ -405,6 +403,88 @@ function huge_it_catalog_productNames() {
             }
         }
         echo json_encode($product_names);
+    }
+    wp_die();
+}
+
+/* ALTERNATIVAS A */
+add_shortcode( 'huge-it-catalog-alternative-to', 'huge_it_catalog_alternative_to_shortcode' );
+
+function huge_it_catalog_alternative_to_shortcode() {
+    $search_string = "";
+    // GLOBAL SEARCH INPUT
+    $output = '';
+        $output .= '<section id="huge_it_catalog_content">';
+            // Search input text block
+            $output .= '<div id="search_block">';
+                $output .= '<form method="post">';
+                    $output .= '<input id="fromSearchAlternative" type="search" name="search-product"></input>';
+                    $output .= '<button id="search_button" class="show_alternatives">Buscar alternativa</button>';
+                $output .= '</form>';
+            $output .= '</div>';
+        // Show catalog
+        $output .= '<div style="display:none" id="dvloader"><img src="'. plugins_url('images/load_more_icon_4.gif', __FILE__) .'" /></div>';
+        $output .= '<div id="huge_it_catalog_container" class="products-list"></div>';
+    $output .= '</section>';
+    return $output;
+}
+
+add_action( 'wp_ajax_nopriv_huge_it_catalog_listAlternatives', 'huge_it_catalog_listAlternatives' );
+add_action( 'wp_ajax_huge_it_catalog_listAlternatives', 'huge_it_catalog_listAlternatives');
+
+function huge_it_catalog_listAlternatives() {
+    // check_ajax_referer( 'huge_it_catalog_globalSearch' );
+    if ( !empty( $_POST['from_product'] ) ) {
+        global $wpdb;
+        $search_string = sanitize_text_field( $_POST['from_product'] );
+        $search_term = "'%" . $search_string . "%'";
+        // Prepare query to retrieve products from database
+        $product_query = 'SELECT p1.name, p1.image_url, p1.description, p1.id, p2.single_product_url_type
+                          FROM ' . $wpdb->prefix . 'huge_it_catalog_products AS p1, ' 
+                                . $wpdb->prefix . 'huge_it_catalog_products AS p2, '
+                                . $wpdb->prefix . 'huge_it_catalogs AS catalogs, '
+                                . $wpdb->prefix . 'huge_it_catalog_proprietary_software AS ps, '
+                                . $wpdb->prefix . 'huge_it_catalog_alternative_to AS at
+                          WHERE ps.name LIKE ' . $search_term .
+                          ' AND at.id_proprietary_software = ps.id
+                          AND at.id_free_software = p1.id 
+                          AND p1.catalog_id = catalogs.id
+                          AND p2.name = catalogs.name';
+        // Query
+        $product_items = $wpdb->get_results( $product_query, ARRAY_A );
+        // Delete duplicated rows with duplicated names
+        $unique_product_items = array();
+        $aux = array();
+        foreach ( $product_items as $product ) {
+            if ( !in_array( $product['name'], $array )) {
+                $array[] = $product['name'];
+                $unique_product_items[] = $product;
+            }
+        }
+        // Check if any products were found
+        if ( !empty( $unique_product_items ) ) {
+            foreach ( $unique_product_items as $product ) {
+                // product
+                $output .= '<div id="product_item">';
+                    // left block
+                    $output .= '<div id="left_block">';
+                        $output .= '<div id="main_image_block">';
+                            $output .= '<a href="' . $product['image_url'] . '">';
+                            $output .= '<img id="product_image" src="' . $product['image_url'] . '"></a>';
+                        $output .= '</div>';
+                    $output .= '</div>';
+                    // right block
+                    $output .= '<div id="right_block">';
+                        $output .= '<div id="title_block"><h3>' . $product['name'] . '</h3></div>';
+                        $output .= '<div id="description_block">' . $product['description'] . '</div>';
+                        $output .= '<div><a href="' . $product['single_product_url_type'] . '?single_prod_id=' . $product['id'] . '"><button id="product_button" type="submit">Ver aplicación</button></a></div>';
+                    $output .= '</div>';
+                $output .= '</div>';
+            }
+        } else {
+            $output .= '<p>No se encontro el software solicitado. <a href="anadir-producto">Añadir software solicitado</a></p>';
+        }
+        echo $output;
     }
     wp_die();
 }
@@ -1729,6 +1809,22 @@ CREATE TABLE IF NOT EXISTS `" . $wpdb->prefix . "huge_it_catalog_albums` (
   PRIMARY KEY (`id`)
 )  DEFAULT CHARSET=latin1 AUTO_INCREMENT=8 ";
 
+// Crea tablas necesarias para la funcionalidad alternativas a
+$sql_huge_it_catalog_proprietary_software = "
+    CREATE TABLE IF NOT EXISTS `" . $wpdb->prefix . "huge_it_catalog_proprietary_software` (
+        `id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+        `name` text CHARACTER SET utf8 NOT NULL
+    ) DEFAULT CHARSET=latin1 AUTO_INCREMENT=8 ";
+
+$sql_huge_it_catalog_alternative_to = "
+        CREATE TABLE IF NOT EXISTS `" .$wpdb->prefix . "huge_it_catalog_alternative_to` (
+            `id_free_software` INT(11) UNSIGNED NOT NULL,
+            `id_proprietary_software` INT(11) UNSIGNED NOT NULL,
+            PRIMARY KEY (`id_free_software`, `id_proprietary_software`),
+            FOREIGN KEY (`id_free_software`) REFERENCES `" . $wpdb->prefix . "huge_it_catalog_products`(`id`),
+            FOREIGN KEY (`id_proprietary_software`) REFERENCES `" . $wpdb->prefix . "huge_it_catalog_proprietary_software`(`id`)
+        )";
+
     $table_name = $wpdb->prefix . "huge_it_catalog_album_catalog_contact";
     $sql_7 = <<<query7
 INSERT INTO `$table_name` (`album_id`, `catalog_id`) VALUES
@@ -1920,6 +2016,8 @@ query9;
     $wpdb->query($sql_huge_it_catalog_albums);
     $wpdb->query($sql_huge_it_catalog_album_catalog_contact);
     $wpdb->query($sql_huge_it_catalog_general_params);
+    $wpdb->query($sql_huge_it_catalog_proprietary_software);
+    $wpdb->query($sql_huge_it_catalog_alternative_to);
 
     if (!$wpdb->get_var("select count(*) from " . $wpdb->prefix . "huge_it_catalog_products")) {
         $wpdb->query($sql_2);
