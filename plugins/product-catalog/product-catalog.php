@@ -335,7 +335,7 @@ function huge_it_catalog_listProducts() {
         $search_term = "'%" . $search_string . "%'";
         // Prepare query to retrieve products from database
         $product_query = 'SELECT p1.name, p1.image_url, p1.description, p1.id, p2.single_product_url_type
-                          FROM ' . $wpdb->prefix . 'huge_it_catalog_products AS p1, ' 
+                          FROM ' . $wpdb->prefix . 'huge_it_catalog_products AS p1, '
                                 . $wpdb->prefix . 'huge_it_catalog_products AS p2, '
                                 . $wpdb->prefix . 'huge_it_catalogs AS catalogs
                           WHERE p1.name OR p1.description LIKE ' . $search_term .
@@ -522,7 +522,7 @@ function huge_it_catalog_options_panel()
 {
     $page_cat = add_menu_page('Theme page title', 'Huge IT Catalog', 'delete_pages', 'catalogs_huge_it_catalog', 'catalogs_huge_it_catalog', plugins_url('images/huge_it_catalogLogoHover -for_menu.png', __FILE__));
     $catalogs = add_submenu_page('catalogs_huge_it_catalog', 'Catalogs', 'Catalogs', 'delete_pages', 'catalogs_huge_it_catalog', 'catalogs_huge_it_catalog');
-    $general_options = add_submenu_page('catalogs_huge_it_catalog', 'General Options', 'General Options', 'manage_options', 'huge_it_catalog_general_options_page', 'huge_it_catalog_general_options_page');
+    $general_options = add_submenu_page('catalogs_huge_it_catalog', 'General Options', 'General Options', 'manage_options', 'huge_it_catalog_general_options_page', 'huge_it_catalog_general_options_page', '');
     $Submitions = add_submenu_page('catalogs_huge_it_catalog', 'Submissions', 'Submissions', 'manage_options', 'huge_it_catalog_submitions_page', 'huge_it_catalog_submitions_page');
     $Reviews = add_submenu_page('catalogs_huge_it_catalog', 'Comments Manager', 'Comments Manager', 'manage_options', 'huge_it_catalog_reviews_page', 'huge_it_catalog_reviews_page');
     $Ratings = add_submenu_page('catalogs_huge_it_catalog', 'Ratings Manager', 'Ratings Manager', 'manage_options', 'huge_it_catalog_ratings_page', 'huge_it_catalog_ratings_page');
