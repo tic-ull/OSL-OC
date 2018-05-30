@@ -293,7 +293,7 @@ add_action('wp_enqueue_scripts', 'huge_it_catalog_global_search_set_scripts');
 function huge_it_catalog_global_search_set_scripts() {
 
     wp_enqueue_script('jquery-ui-autocomplete');
-    wp_register_script('huge_it_catalog_gs_ajax_script', plugin_dir_url(__FILE__) . '/js/ajax-global-search.js', array('jquery'), true);
+    wp_register_script('huge_it_catalog_gs_ajax_script', plugin_dir_url(__FILE__) . '/js/ajax-search.js', array('jquery'), true);
     wp_enqueue_script('huge_it_catalog_gs_ajax_script');
     wp_localize_script('huge_it_catalog_gs_ajax_script', 'huge_it_catalog_gs_vars',
     ['ajaxurl'=>admin_url('admin-ajax.php')]);
@@ -328,19 +328,18 @@ add_action( 'wp_ajax_nopriv_huge_it_catalog_listProducts', 'huge_it_catalog_list
 add_action( 'wp_ajax_huge_it_catalog_listProducts', 'huge_it_catalog_listProducts');
 
 function huge_it_catalog_listProducts() {
-    // check_ajax_referer( 'huge_it_catalog_globalSearch' );
     if ( !empty( $_POST['from_product'] ) ) {
         global $wpdb;
         $search_string = sanitize_text_field( $_POST['from_product'] );
         $search_term = "'%" . $search_string . "%'";
         // Prepare query to retrieve products from database
-        $product_query = 'SELECT p1.name, p1.image_url, p1.description, p1.id, p2.single_product_url_type
-                          FROM ' . $wpdb->prefix . 'huge_it_catalog_products AS p1, '
-                                . $wpdb->prefix . 'huge_it_catalog_products AS p2, '
-                                . $wpdb->prefix . 'huge_it_catalogs AS catalogs
-                          WHERE p1.name OR p1.description LIKE ' . $search_term .
-                          ' AND p1.catalog_id = catalogs.id
-                          AND p2.name = catalogs.name';
+        $product_query = "SELECT p1.name, p1.image_url, p1.description, p1.id, p2.single_product_url_type
+                          FROM " . $wpdb->prefix . "huge_it_catalog_products AS p1, "
+                                . $wpdb->prefix . "huge_it_catalog_products AS p2, "
+                                . $wpdb->prefix . "huge_it_catalogs AS catalogs
+                          WHERE ((p1.name LIKE " . $search_term . ") OR (p1.description LIKE " . $search_term .
+                          ") AND (p1.catalog_id = catalogs.id)
+                          AND (p2.name = catalogs.name))";
         // Query
         $product_items = $wpdb->get_results( $product_query, ARRAY_A );
         // Delete duplicated rows with duplicated names
@@ -392,7 +391,8 @@ function huge_it_catalog_productNames() {
         // Prepare query to retrieve products from database
         $product_query = 'SELECT DISTINCT name FROM ';
         $product_query .= $wpdb->prefix . 'huge_it_catalog_products';
-        $product_query .= " WHERE name OR description LIKE " . $search_term;
+        $product_query .= " WHERE ((name LIKE " . $search_term . ") OR";
+        $product_query .= "(description LIKE " . $search_term . "))";
         // Query
         $product_items = $wpdb->get_results( $wpdb->prepare(
         $product_query, $search_term ), ARRAY_A );

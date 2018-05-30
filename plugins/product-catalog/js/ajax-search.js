@@ -3,6 +3,7 @@ jQuery(function($) {
   function searchProducts() {
     $('.products-list').fadeOut(250);
     $('#dvloader').fadeIn(500);
+    $('.ui-autocomplete').hide();
     $.ajax({
       type: 'POST', 
       url: huge_it_catalog_gs_vars.ajaxurl,
