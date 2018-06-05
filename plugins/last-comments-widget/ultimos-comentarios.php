@@ -17,8 +17,43 @@
 
     class Last_Comments extends WP_Widget {
         function __construct() {
-            parent::__construct( 'last_comments', 'Last Comments',
-                                array( 'description' => 'Displays list of last comments' ) );
+            parent::__construct( 'last_comments', 'Últimos comentarios',
+                                array( 'description' => 'Muestra una lista con los últimos comentarios realizados.' ) );
+        }
+
+        function form ( $instance ) {
+            $render_widget = ( !empty( $instance['render_widget'] ) ? $instance['render_widget'] : 'true' );
+            $nb_last_comments = ( !empty( $instance['nb_last_comments'] ) ? $instance['nb_last_comments'] : 5 );
+            $widget_title = ( !empty( $instance['widget_title'] ) ? esc_attr( $instance['widget_title'] ) : 
+                            'Últimos comentarios');
+            ?>
+            <p>
+                <label for="<?php echo $this->get_field_id( 'render_widget' ); ?>">
+                <?php echo 'Mostrar Widget'; ?>
+                    <select id="<?php echo $this->get_field_id( 'render_widget' ); ?>"name="<?php echo
+                        $this->get_field_name( 'render_widget' ) ; ?>">
+                        <option value="true" <?php selected( $render_widget, 'true' ); ?>>Si</option>
+                        <option value="true" <?php selected( $render_widget, 'false' ); ?>>No</option>
+                    </select>
+                </lable>
+            </p>
+            <p>
+                <label for="<?php echo $this->get_field_id( 'widget_title' ); ?>">
+                    <?php echo 'Título del Widget:';?>
+                    <input type="text" id="<?php echo $this->get_field_id( 'widget_title' ); ?>"
+                           name="<?php echo $this->get_field_name( 'widget_title' ); ?>"
+                           value="<?php echo $widget_title; ?>" />
+                </label>
+            </p>
+            <p>
+                <label for="<?php echo $this->get_field_id( 'nb_last_comments' ); ?>">
+                    <?php echo 'Número de comentarios a mostrar:';?>
+                    <input type="text" id="<?php echo $this->get_field_id( 'nb_last_comments' ); ?>"
+                           name="<?php echo $this->get_field_name( 'nb_last_comments' ); ?>"
+                           value="<?php echo $nb_last_comments; ?>" />
+                </label>
+            </p>
+        <?php
         }
         function widget() {
             echo "<div class = 'panel-group' id = 'comentarios'></div>";
