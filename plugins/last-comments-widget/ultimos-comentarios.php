@@ -33,7 +33,7 @@
                     <select id="<?php echo $this->get_field_id( 'render_widget' ); ?>"name="<?php echo
                         $this->get_field_name( 'render_widget' ) ; ?>">
                         <option value="true" <?php selected( $render_widget, 'true' ); ?>>Si</option>
-                        <option value="true" <?php selected( $render_widget, 'false' ); ?>>No</option>
+                        <option value="false" <?php selected( $render_widget, 'false' ); ?>>No</option>
                     </select>
                 </lable>
             </p>
@@ -58,7 +58,7 @@
 
         function update( $new_instance, $instance ) {
             if ( is_numeric ( $new_instance['nb_last_comments'] ) ) {
-                $instance['nb_last_comments'] = intval($instance['nb_last_comments']);
+                $instance['nb_last_comments'] = intval($new_instance['nb_last_comments']);
             } else {
                 $instance['nb_last_comments'] = $instance['nb_last_comments'];
             }
@@ -68,94 +68,57 @@
             return $instance;
         }
 
-        function widget() {
-            echo "<div class = 'panel-group' id = 'comentarios'></div>";
-            $servername = DB_HOST;
-		    $username = DB_USER;
-            $password = DB_PASSWORD;
-            $dbname = DB_NAME;
-            $conn = new mysqli($servername, $username, $password, $dbname);
+        function widget( $args, $instance ) {
+            if ( 'true' == $instance['render_widget'] ) {
+                extract( $args );
+                // Obtenemos las opciones de configuración del widget
+                $render_widget = ( !empty( $instance['render_widget'] ) ? $instance['render_widget'] : 'true' );
+                $nb_last_comments = ( !empty( $instance['nb_last_comments'] ) ? $instance['nb_last_comments'] : 5 );
+                $widget_title = ( !empty( $instance['widget_title'] ) ? esc_attr( $instance['widget_title'] ) : 
+                                'Últimos comentarios');
+                global $wpdb;
+
+                $sql_query = "SELECT p1.name, p1.id, p2.single_product_url_type, rev.name, rev.content, rev.date 
+                              FROM wp_huge_it_catalog_products AS p1, wp_huge_it_catalog_products AS p2, 
+                              wp_huge_it_catalogs AS catalogs, wp_huge_it_catalog_reviews AS rev 
+                              WHERE ((p1.catalog_id = catalogs.id) 
+                              AND (p2.name = catalogs.name) 
+                              AND (p1.id = rev.product_id))
+                              ORDER BY rev.date DESC LIMIT " . $nb_last_comments;
             
-            if ($conn->connect_error) {
-		        die("Connection failed: " . $conn->connect_error);
-		    }
-		    $sql = "SELECT id, name, content, product_id, date
-			        FROM `wp_huge_it_catalog_reviews`
-                    GROUP BY id
-                    HAVING COUNT( * ) <=5
-                    ORDER BY id DESC";  
-            
-            $comentario = array();
-		    $IdProducto = array();
-		    $nombre = array();
-		    $producto = array();
-            $fechas = array();
-		    $result = $conn->query($sql);
-		
-		    if ($result->num_rows > 0) {
-                while($row = $result->fetch_assoc()) {
-                $com = $row["content"];
-                    if (strlen($row["content"]) > 150)
-                        $com = substr($com,0,150).'...';
-                    array_push($comentario, utf8_encode($com));
-                    array_push($IdProducto, $row["product_id"]);
-                    array_push($nombre, utf8_encode($row["name"]));
-                    array_push($fechas, $row["date"]);
-                } 
-		    } else {
-		        echo "0 results";
-		    }
-            $catalogos = array("10"=>"bi", "11"=>"cms", "12"=>"crm", "13"=>"dist-emp", "14"=>"dms", 
-                                "15"=>"ecommerce", "16"=>"erp", "17"=>"gf", "18"=>"si", "19"=>"gw", 
-                                "20"=>"internet", "21"=>"ofi", "22"=>"gp", "23"=>"pv", "24"=>"util", 
-                                "25" => "diseno", "26" => "multimedia", "28" => "arquitectura", 
-                                "29" => "bio", "30" => "edu", "31" => "elec", "32" => "fisica", 
-                                "33" => "informatica", "34" => "matematicas", "35" => "medicina");
-		    for ($x = 0; $x < count($IdProducto); $x++) {
-                $sql = "SELECT name, catalog_id
-			            FROM `wp_huge_it_catalog_products`
-			            WHERE id =" . $IdProducto[$x];
-                $result = $conn->query($sql);
-                
-		        if ($result->num_rows > 0) { 
-		            $row = $result->fetch_assoc(); 
-                    $productoAux = '<a style=\"color:#7a3b7a; \" href= \"' . site_url() . '/catalogo/' . 
-                                    $catalogos[$row["catalog_id"]] .'/?single_prod_id=' . $IdProducto[$x] . '\">'
-                                    . $row["name"] . '</a>';
-                    array_push($producto, $productoAux);
+                $comment_items = $wpdb->get_results( $sql_query, ARRAY_A );
+
+                //echo $before_widget . $before_title;
+                // echo apply_filters( 'widget_title', $widget_title );
+                // echo $after_title;
+                echo $widget_title;
+                if ( !empty( $comment_items ) ) {
+                    $output = "<div id='comentarios' class='panel-group'>";
+				    $aux = 0;
+				    foreach ($comment_items as $comment) {
+					    if ( $aux % 2 == 0) {
+						    $output .= "<div class='panel panel-default'>";
+					    } else {
+						    $output .= "<div class='panel panel-info'>";
+					    }
+                        $aux++;
+                        $output .= "<div class='panel-heading'>"
+                                        . $comment['name'] . " | " . $comment['date'] . " | " . 
+                                        "<a style='color:#7a3b7a;' href='" . $comment['single_product_url_type'] .
+                                            "?single_prod_id=" . $comment['id'] . "'>" . $comment['name'] . 
+                                        "</a>
+                                    </div>
+                                    <div class='panel-body'>"
+                                        . $comment['content'] .
+                                    "</div>
+                                </div>";
+				    }
+				    $output .= "</div>"; 
+					echo $output;
                 } else {
-                    echo "0 name results";
+                    echo "<p>No hay comentarios que mostrar</p>";
                 }
-		    }
-            $comentarios = '<script type=\'text/javascript\'>
-                                document.getElementById("comentarios").innerHTML ="<div class=\"panel panel-default\">" +
-                                "<div class=\"panel-heading\">'. $nombre[0] .' | ' .  $fechas[0] . ' | ' . $producto[0] . ' </div>" +
-                                "<div class=\"panel-body\">" +
-                                    "  '. $comentario[0].'" +
-                                "</div></div>" +
-                                "<div class=\"panel panel-info\">" +
-                                "<div class=\"panel-heading\">'. $nombre[1] .' | ' . $fechas[1] . ' | ' .  $producto[1] . '</div>" +
-                                "<div class=\"panel-body\">" +
-                                    "  '.$comentario[1].'" +
-                                "</div></div>" +
-                                "<div class=\"panel panel-default\">" +
-                                    "<div class=\"panel-heading\">'. $nombre[2] .' | ' . $fechas[2] . ' | ' . $producto[2] . '</div>"+
-                                "<div class=\"panel-body\">" +
-                                    "  '. $comentario[2] .'" +
-                                "</div></div>" +
-                                "<div class=\"panel panel-info\">" +
-                                    "<div class=\"panel-heading\">'. $nombre[3] .' | ' . $fechas[3] . ' | ' . $producto[3] . '</div>" +
-                                "<div class=\"panel-body\">" +
-                                    "  '. $comentario[3] .'" +
-                                "</div></div>" +
-                                "<div class=\"panel panel-default\">" +
-                                    "<div class=\"panel-heading\">'. $nombre[4] .' | ' . $fechas[4] . ' | ' . $producto[4] . '</div>" +
-                                "<div class=\"panel-body\">" +
-                                    "  '. $comentario[4] .'"+
-                                "</div>" +
-                                "</div>";
-                            </script>';
-            echo $comentarios;
+            }
         }
     }
 ?>
