@@ -55,6 +55,19 @@
             </p>
         <?php
         }
+
+        function update( $new_instance, $instance ) {
+            if ( is_numeric ( $new_instance['nb_last_comments'] ) ) {
+                $instance['nb_last_comments'] = intval($instance['nb_last_comments']);
+            } else {
+                $instance['nb_last_comments'] = $instance['nb_last_comments'];
+            }
+            $instance['widget_title'] = sanitize_text_field( $new_instance['widget_title'] );
+            $instance['render_widget'] = sanitize_text_field( $new_instance['render_widget'] );
+
+            return $instance;
+        }
+
         function widget() {
             echo "<div class = 'panel-group' id = 'comentarios'></div>";
             $servername = DB_HOST;
