@@ -86,15 +86,13 @@
                               AND (p1.id = rev.product_id))
                               ORDER BY rev.date DESC LIMIT " . $nb_last_comments;
             
-                $comment_items = $wpdb->get_results( $sql_query, ARRAY_A );
-
-                //echo $before_widget . $before_title;
-                // echo apply_filters( 'widget_title', $widget_title );
-                // echo $after_title;
-                echo $widget_title;
+                $comment_items = $wpdb->get_results( $sql_query, ARRAY_A );        
                 if ( !empty( $comment_items ) ) {
                     $output = "<div id='comentarios' class='panel-group'>";
-				    $aux = 0;
+                    echo $before_widget . $before_title;
+                    echo apply_filters( 'widget_title', $widget_title );
+                    echo $after_title;
+                    $aux = 0;
 				    foreach ($comment_items as $comment) {
 					    if ( $aux % 2 == 0) {
 						    $output .= "<div class='panel panel-default'>";
@@ -118,6 +116,7 @@
                 } else {
                     echo "<p>No hay comentarios que mostrar</p>";
                 }
+                echo $after_widget;
             }
         }
     }
