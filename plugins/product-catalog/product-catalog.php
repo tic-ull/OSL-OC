@@ -335,24 +335,25 @@ function huge_it_catalog_listProducts() {
         // Prepare query to retrieve products from database
         $product_query = "SELECT p1.name, p1.image_url, p1.description, p1.id, p2.single_product_url_type
                           FROM " . $wpdb->prefix . "huge_it_catalog_products AS p1, "
-                                . $wpdb->prefix . "huge_it_catalog_products AS p2, "
-                                . $wpdb->prefix . "huge_it_catalogs AS catalogs
-                          WHERE ((p1.name LIKE " . $search_term . ") OR (p1.description LIKE " . $search_term .
-                          ") AND (p1.catalog_id = catalogs.id)
-                          AND (p2.name = catalogs.name))";
+                                . $wpdb->prefix . "huge_it_catalogs AS catalogs, "
+                                . $wpdb->prefix . "huge_it_catalog_products AS p2
+                          WHERE ((p1.catalog_id = catalogs.id) AND (p2.name = catalogs.name)
+                                AND ((p1.name LIKE " . $search_term . ") OR (p1.description LIKE " . $search_term ."))
+                                AND (p1.published = 'on'))";
         // Query
         $product_items = $wpdb->get_results( $product_query, ARRAY_A );
-        // Delete duplicated rows with duplicated names
-        $unique_product_items = array();
-        $aux = array();
-        foreach ( $product_items as $product ) {
-            if ( !in_array( $product['name'], $array )) {
-                $array[] = $product['name'];
-                $unique_product_items[] = $product;
-            }
-        }
         // Check if any products were found
-        if ( !empty( $unique_product_items ) ) {
+        if ( !empty( $product_items ) ) {
+            // Delete duplicated rows with duplicated names
+            $unique_product_items = array();
+            $aux = array();
+            foreach ( $product_items as $product ) {
+                if ( !in_array( $product['name'], $array )) {
+                    $array[] = $product['name'];
+                    $unique_product_items[] = $product;
+                }
+            }
+            $number_of_pages = ceil ( count ( $unique_product_items ) / 5 );
             foreach ( $unique_product_items as $product ) {
                 // product
                 $output .= '<div id="product_item">';
@@ -371,6 +372,12 @@ function huge_it_catalog_listProducts() {
                     $output .= '</div>';
                 $output .= '</div>';
             }
+            // Pagination
+            // $output .= '<form method="post" class="global-search-pagination">';
+            // for ($i = 1; $i <= $number_of_pages; $i++){
+                // $output .= '<button id="pagination-button" value="' . $i . '">' . $i . '</button>';
+            // }
+            // $output .= '</form>';
         } else {
             $output .= '<p>No se encontro el software solicitado. <a href="anadir-producto">Añadir software solicitado</a></p>';
         }
@@ -391,8 +398,9 @@ function huge_it_catalog_productNames() {
         // Prepare query to retrieve products from database
         $product_query = 'SELECT DISTINCT name FROM ';
         $product_query .= $wpdb->prefix . 'huge_it_catalog_products';
-        $product_query .= " WHERE ((name LIKE " . $search_term . ") OR";
-        $product_query .= "(description LIKE " . $search_term . "))";
+        $product_query .= " WHERE ((name LIKE " . $search_term;
+        $product_query .= " OR description LIKE " . $search_term . ") ";
+        $product_query .= "AND (published = 'on'))";
         // Query
         $product_items = $wpdb->get_results( $wpdb->prepare(
         $product_query, $search_term ), ARRAY_A );
@@ -426,6 +434,7 @@ function huge_it_catalog_alternative_to_shortcode() {
         $output .= '<div style="display:none" id="dvloader"><img src="'. plugins_url('images/load_more_icon_4.gif', __FILE__) .'" /></div>';
         $output .= '<div id="huge_it_catalog_container" class="products-list"></div>';
     $output .= '</section>';
+
     return $output;
 }
 
@@ -449,7 +458,8 @@ function huge_it_catalog_listAlternatives() {
                           ' AND at.id_proprietary_software = ps.id
                           AND at.id_free_software = p1.id 
                           AND p1.catalog_id = catalogs.id
-                          AND p2.name = catalogs.name';
+                          AND p2.name = catalogs.name
+                          AND p1.published = "on"';
         // Query
         $product_items = $wpdb->get_results( $product_query, ARRAY_A );
         // Delete duplicated rows with duplicated names
