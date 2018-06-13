@@ -549,6 +549,8 @@ jQuery(document).ready(function($){
 									});
                                                                         
 								</script>
+                                <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet" />
+                                <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>
 							</div>
 							<div class="image-options">
 								<div class="options-container">
@@ -585,9 +587,36 @@ jQuery(document).ready(function($){
 										<label for="show_product<?php echo $rowimages->id; ?>"><?php echo __("Show Product","product-catalog");?></label>
 										<input type="hidden" value="off" name="show_product<?php echo $rowimages->id; ?>" />
 										<input type="checkbox" id="show_product<?php echo $rowimages->id; ?>" name="show_product<?php echo $rowimages->id; ?>" <?php if($rowimages->published == 'on') echo 'checked="checked"';?> value="on">
-                                    </div>                                 
-
+                                    </div> 
+                                    <!-- Alternativas a -->
+                                    <?php
+                                        $software_query = "SELECT * FROM " . $wpdb->get_blog_prefix();
+                                        $software_query .= "huge_it_catalog_proprietary_software ORDER BY name ASC";
+                                        $software_items = $wpdb->get_results( $software_query, ARRAY_A );
+                                    ?>
+                                    <div>
+										<label for="alternative_to<?php echo $rowimages->id; ?>"><?php echo __("Alternative to","product-catalog");?></label>
+                                        <select class="js-example-basic-multiple" name="software<?php echo $rowimages->id; ?>[]" multiple="multiple">
+                                            <?php
+                                                if ($software_items) {
+                                                    foreach ($software_items as $software_item) {
+                                                        $software_id = $software_item['id'];
+                                                        $software_name = $software_item['name'];
+                                                        echo "<option value='" . $software_id . "'>" . $software_name . "</option>"; 
+                                                    }
+                                                }
+                                            ?>
+                                        </select>
+                                    </div> 
 								</div>
+        <script>
+           $(document).ready(function() {
+                $('.js-example-basic-multiple').select2();
+            });
+        </script>
+
+    
+
 <div class="category-container">
     <?php
             $allParamsAndChildsInArray = explode('*()*', $rowimages->parameters);

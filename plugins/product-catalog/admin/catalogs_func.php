@@ -335,6 +335,16 @@ function apply_cat($id)
             $wpdb->query( $wpdb->prepare( "UPDATE " . $wpdb->prefix . "huge_it_catalog_products SET  link_target = '%s'  WHERE ID = %d ", $_POST[ "view_link_open_type" . $rowimages->id . "" ], $rowimages->id ) );
             $wpdb->query( $wpdb->prepare( "UPDATE " . $wpdb->prefix . "huge_it_catalog_products SET  single_product_url_type = '%s' WHERE ID = %d ", $_POST[ "single_product_url_type" . $rowimages->id . "" ], $rowimages->id ) );
             $wpdb->query( $wpdb->prepare( "UPDATE " . $wpdb->prefix . "huge_it_catalog_products SET  published = '%s'  WHERE ID = %d ", $_POST[ "show_product" . $rowimages->id . "" ], $rowimages->id ) );
+            
+            $software = $_POST['software' . $rowimages->id];
+            foreach ( $software as $item) {
+                
+                $wpdb->insert('wp_huge_it_catalog_alternative_to',
+                        array( 'id_free_software' => $rowimages->id,
+                           'id_proprietary_software' => $item),
+                        array('%d', '%d')
+                );
+            }
         }
         $query_params = $wpdb->prepare( "SELECT * FROM " . $wpdb->prefix . "huge_it_catalogs WHERE id = %d", $id );
         $row_params   = $wpdb->get_row( $query_params );
@@ -406,10 +416,12 @@ INSERT INTO
 	   
 	if(isset($_POST["posthuge-it-description-length"])){
 	    $wpdb->query($wpdb->prepare("UPDATE ".$wpdb->prefix."huge_it_catalogs SET  published = %d WHERE id = %d ", $_POST["posthuge-it-description-length"], $_GET['id']));
-        }
+    }
+
 	?>
 	<div class="updated"><p><strong><?php _e('Item Saved'); ?></strong></p></div>
 	<?php
+    // Alternativas a
 	
     return true;
 	

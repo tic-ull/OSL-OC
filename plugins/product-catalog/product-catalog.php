@@ -539,9 +539,11 @@ function huge_it_catalog_options_panel()
     }
 
     $featured = add_submenu_page('catalogs_huge_it_catalog', 'Featured Plugins', 'Featured Plugins', 'manage_options', 'huge_it__catalog_featured_plugins', 'huge_it__catalog_featured_plugins');
-    // Añades las páginas administrativas para "buscador global".
+    // Páginas administrativas para el buscador global y alternativas a
     add_submenu_page('catalogs_huge_it_catalog', 'Global Search', 'Global Search', 'manage_options', 
-    'huge_it_global_search_administration_page', 'huge_it_global_search_administration_page');
+    'huge-it-global-search', 'huge_it_global_search_administration_page');
+    add_submenu_page('catalogs_huge_it_catalog', 'Alternative to', 'Alternative to', 'manage_options',
+                    'huge-it-alternative-to', 'huge_it_alternative_to_administration_page');
     $licensing = add_submenu_page( 'catalogs_huge_it_catalog', 'Licensing', 'Licensing', 'manage_options', 'huge_it_catalog_Licensing', 'huge_it_catalog_Licensing');
     add_action('admin_print_styles-' . $page_cat, 'huge_it_catalog_admin_script');
     add_action('admin_print_styles-' . $page_option, 'huge_it_catalog_option_admin_script');
@@ -552,6 +554,10 @@ function huge_it_catalog_options_panel()
 
 function huge_it_global_search_administration_page() {
     include_once("admin/global_search_view.php");
+}
+
+function huge_it_alternative_to_administration_page() {
+    include_once("admin/alternative_to_view.php");
 }
 
 function huge_it__catalog_featured_plugins()
