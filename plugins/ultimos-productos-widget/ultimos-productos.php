@@ -82,7 +82,8 @@
 						. $wpdb->prefix . "huge_it_catalog_products AS p2, "
 						. $wpdb->prefix . "huge_it_catalogs AS catalogs
 						WHERE ((p1.catalog_id = catalogs.id)
-						AND (p2.name = catalogs.name))
+                        AND (p2.name = catalogs.name)
+                        AND (p1.published = 'on'))
 						ORDER BY p1.id DESC";
 				
 				$product_items = $wpdb->get_results( $sql_query, ARRAY_A );

@@ -84,6 +84,7 @@
                               WHERE ((p1.catalog_id = catalogs.id) 
                               AND (p2.name = catalogs.name) 
                               AND (p1.id = rev.product_id))
+                              AND (p1.published = 'on')
                               ORDER BY rev.date DESC LIMIT " . $nb_last_comments;
             
                 $comment_items = $wpdb->get_results( $sql_query, ARRAY_A );        
