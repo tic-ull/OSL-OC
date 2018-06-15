@@ -7,6 +7,10 @@ die(__("Access Denied","product-catalog"));
 if(!function_exists('current_user_can')){
 	die(__("Access Denied","product-catalog"));
 }
+?>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>
+<?php
 
 function html_showcatalogs( $rows,  $pageNav,$sort,$cat_row){
 	global $wpdb;
@@ -549,8 +553,7 @@ jQuery(document).ready(function($){
 									});
                                                                         
 								</script>
-                                <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet" />
-                                <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>
+                                
 							</div>
 							<div class="image-options">
 								<div class="options-container">
@@ -590,12 +593,54 @@ jQuery(document).ready(function($){
                                     </div> 
                                     <!-- Alternativas a -->
                                     <?php
+                                        // Elimina la relación entre el software privativo y software libre
+                                        if ( isset($_GET['delete']) && $_GET['delete'] == 'true' ) {
+                                            $delete_relation = "DELETE FROM " . $wpdb->prefix . "huge_it_catalog_alternative_to ";
+                                            $delete_relation .= "WHERE id_free_software = " . $_GET['fs-id'];
+                                            $delete_relation .= " AND id_proprietary_software = " . $_GET['ps-id'];
+                                            $wpdb->query($delete_relation);  
+                                        }
+                                        // Búsqueda de software privativo relacionado con el software libre
+                                        $related_software = "SELECT ps.name, ps.id FROM " . $wpdb->get_blog_prefix();
+                                        $related_software .= "huge_it_catalog_alternative_to AS at, " . $wpdb->get_blog_prefix();
+                                        $related_software .= "huge_it_catalog_proprietary_software AS ps ";
+                                        $related_software .= "WHERE at.id_free_software = " . $rowimages->id . " AND ";
+                                        $related_software .= "ps.id = at.id_proprietary_software";
+                                        $related_items = $wpdb->get_results( $related_software, ARRAY_A );
+                                        // Búsqueda de todo el software privativo disponible
                                         $software_query = "SELECT * FROM " . $wpdb->get_blog_prefix();
                                         $software_query .= "huge_it_catalog_proprietary_software ORDER BY name ASC";
                                         $software_items = $wpdb->get_results( $software_query, ARRAY_A );
                                     ?>
                                     <div>
-										<label for="alternative_to<?php echo $rowimages->id; ?>"><?php echo __("Alternative to","product-catalog");?></label>
+                                    <div>
+                                        <label for="alternative to<?php echo $rowimages->id; ?>"><?php echo __("Alternative to","product-catalog");?></label>
+                                        <br />
+                                        <?php
+                                        if ($related_items) {
+                                            foreach( $related_items as $related_item) {
+                                                echo "<span style='background-color:#e4e4e4; border: 1px solid #aaa; border-radius: 4px;
+                                                cursor: default; float: left; margin-right: 5px; margin-top: 5px; padding: 0 5px; font-size: 13px'>
+                                                    <a href='" . add_query_arg( array (
+                                                        'page' => 'catalogs_huge_it_catalog',
+                                                        'task' => 'edit_cat',
+                                                        'id' => $_GET['id'],
+                                                        'ps-id' => $related_item['id'],
+                                                        'fs-id' => $rowimages->id,
+                                                        'delete' => 'true'
+                                                    ), 'admin.php' ) . "'
+                                                        style='font-size:12px; color: #999; cursor: pointer; display: inline-block; font-weight: bold
+                                                        ; margin-right: 2px; text-decoration: none'>x
+                                                    </a>"  . $related_item['name'] . 
+                                                "</span>";
+                                            }
+                                        } else {
+                                            echo "<p>No proprietary software found</p>";
+                                        }
+                                        ?>
+                                        <br /><br />
+                                    </div>
+										<label for="add alternative<?php echo $rowimages->id; ?>"><?php echo __("Add alternative","product-catalog");?></label>
                                         <select class="js-example-basic-multiple" name="software<?php echo $rowimages->id; ?>[]" multiple="multiple">
                                             <?php
                                                 if ($software_items) {

@@ -421,7 +421,6 @@ INSERT INTO
 	?>
 	<div class="updated"><p><strong><?php _e('Item Saved'); ?></strong></p></div>
 	<?php
-    // Alternativas a
 	
     return true;
 	
