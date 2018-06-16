@@ -331,6 +331,7 @@ function huge_it_catalog_listProducts() {
     if ( !empty( $_POST['from_product'] ) ) {
         global $wpdb;
         $search_string = sanitize_text_field( $_POST['from_product'] );
+        $page_number = $_POST['page_number'];
         $search_term = "'%" . $search_string . "%'";
         // Prepare query to retrieve products from database
         $product_query = "SELECT p1.name, p1.image_url, p1.description, p1.id, p2.single_product_url_type
@@ -339,22 +340,16 @@ function huge_it_catalog_listProducts() {
                                 . $wpdb->prefix . "huge_it_catalog_products AS p2
                           WHERE ((p1.catalog_id = catalogs.id) AND (p2.name = catalogs.name)
                                 AND ((p1.name LIKE " . $search_term . ") OR (p1.description LIKE " . $search_term ."))
-                                AND (p1.published = 'on'))";
+                                AND (p1.published = 'on')) GROUP BY p1.name";
+        
+        $number_of_products = $wpdb->get_results( $product_query, ARRAY_A );
+        $product_query .= " LIMIT " . ( $page_number - 1 ) * 5 . ", 5";
         // Query
         $product_items = $wpdb->get_results( $product_query, ARRAY_A );
         // Check if any products were found
         if ( !empty( $product_items ) ) {
-            // Delete duplicated rows with duplicated names
-            $unique_product_items = array();
-            $aux = array();
+            $number_of_pages = ceil ( count ( $number_of_products ) / 5 );
             foreach ( $product_items as $product ) {
-                if ( !in_array( $product['name'], $array )) {
-                    $array[] = $product['name'];
-                    $unique_product_items[] = $product;
-                }
-            }
-            $number_of_pages = ceil ( count ( $unique_product_items ) / 5 );
-            foreach ( $unique_product_items as $product ) {
                 // product
                 $output .= '<div id="product_item">';
                     // left block
@@ -373,11 +368,11 @@ function huge_it_catalog_listProducts() {
                 $output .= '</div>';
             }
             // Pagination
-            // $output .= '<form method="post" class="global-search-pagination">';
-            // for ($i = 1; $i <= $number_of_pages; $i++){
-                // $output .= '<button id="pagination-button" value="' . $i . '">' . $i . '</button>';
-            // }
-            // $output .= '</form>';
+            $output .= '<form method="post" class="global-search-pagination">';
+            for ($i = 1; $i <= $number_of_pages; $i++){
+                $output .= '<button class="pagination-button" value="' . $i . '">' . $i . '</button>';
+            }
+            $output .= '</form>';
         } else {
             $output .= '<p>No se encontro el software solicitado. <a href="anadir-producto">Añadir software solicitado</a></p>';
         }
