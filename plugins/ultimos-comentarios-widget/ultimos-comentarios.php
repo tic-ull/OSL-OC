@@ -99,7 +99,10 @@
 						    $output .= "<div class='panel panel-default'>";
 					    } else {
 						    $output .= "<div class='panel panel-info'>";
-					    }
+                        }
+                        if ( strlen($comment["content"]) > 125) {
+                            $comment["content"] = substr($comment["content"], 0, 125) . '...';
+                        }
                         $aux++;
                         $output .= "<div class='panel-heading'>"
                                         . $comment['name'] . " | " . $comment['date'] . " | " . 
