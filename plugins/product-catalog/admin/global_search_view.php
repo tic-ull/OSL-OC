@@ -7,11 +7,11 @@
     if(!function_exists('current_user_can')){
         die(__("Access Denied","product-catalog"));
     }
-    echo "<h1>What is global search functionality?</h1>
-        <p>The global search functionality allows to search the products created by the Huge IT 
-        Product Catalog - ULL plugin from any page of the wordpress site.
-
-        <h1>How to use the global search</h1>
-        <p>Copy the following shortcode <b>[huge-it-catalog-global-search]</b> in any page
-        of your wordpress site.</p>";
 ?>
+    <h1>¿Qué es global la funcionalidad buscador global?</h1>
+        <p> El buscador global permite buscar los productos creados por el plugin Huge IT Product Catalog - ULL
+        desde cualquier página de su sitio web. </p>
+
+    <h1>Como usar el buscador global</h1>
+        <p>Copie el siguiente shortcode <b>[huge-it-catalog-global-search]</b> en cualquier página de su
+        sitio web.</p>

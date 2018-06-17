@@ -10,14 +10,18 @@
     global $wpdb;
 ?>
 <div id="huge-it-catalog-general" class="wrap">
-    <h2>
-        Software privativo
-        <a class="add-new-h2" href="<?php echo add_query_arg ( array ( 
-                'page' => 'huge-it-alternative-to',
-                'id' => 'new' ), 'admin.php' ); ?>">
-            Añadir software
-        </a>
-    </h2>
+    <h2> Como usar alternativas a </h2>
+    <ol>
+        <li>Para utilizar el buscador de alternativas copie el siguiente shortcode 
+        <b>[huge-it-catalog-alternative-to]</b> en una página de su sitio web.</li>
+        
+        <li>Para añadir el software privativo haga clic sobre el botón "Añadir software"
+        que se encuentra en esta misma página.</li>
+        
+        <li>Para asociar el software privativo al software libre seleccionar ir al submenu
+        "Catalogs" y en la edición de cada software puede establecer la relación.
+        </li>
+    </ol>
     <?php 
         if ( empty( $_GET['id'] ) ) {
             $software_query = "SELECT * FROM " . $wpdb->get_blog_prefix();
@@ -68,6 +72,12 @@
                 }
                 ?>
                 <h3>Gestión de software privativo</h3>
+                <br />
+                <a class="add-new-h2" href="<?php echo add_query_arg ( array ( 
+                    'page' => 'huge-it-alternative-to',
+                    'id' => 'new' ), 'admin.php' ); ?>">
+                    Añadir software
+                </a>
                     <div style="width: 50%">
                         <div style="text-align: right; margin-right: 0.5%; font-size: medium">
                             <?php
