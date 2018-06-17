@@ -84,30 +84,22 @@
 						WHERE ((p1.catalog_id = catalogs.id)
                         AND (p2.name = catalogs.name)
                         AND (p1.published = 'on'))
-						ORDER BY p1.id DESC";
+                        GROUP BY p1.name
+						ORDER BY p1.id DESC LIMIT 0, " . $nb_last_comments;
 				
 				$product_items = $wpdb->get_results( $sql_query, ARRAY_A );
 
 				if ( !empty( $product_items ) ) {
-					$unique_product_items = array();
-					$aux = array();
-					$it = 0;
-					while ( sizeof($unique_product_items) != $nb_last_comments ) {
-						if ( !in_array( $product_items[$it]['name'], $aux )) {
-							$aux[] = $product_items[$it]['name'];
-							if ( strlen($product_items[$it]["description"]) > 125) {
-								$product_items[$it]["description"] = substr($product_items[$it]["description"], 0, 125) . '...';
-							}
-							$unique_product_items[] = $product_items[$it];
-						}
-						$it++;
-					}
                     $output = "<div id='productos' class='panel-group'>";
                     echo $before_widget . $before_title;
                     echo apply_filters( 'widget_title', $widget_title );
                     echo $after_title;
 					$aux = 0;
-					foreach ($unique_product_items as $product) {
+					foreach ( $product_items as $product ) {
+                        
+                        if ( strlen($product["description"]) > 125) {
+                            $product["description"] = substr($product["description"], 0, 125) . '...';
+                        }
 						if ( $aux % 2 == 0) {
 							$output .= "<div class='panel panel-default'>";
 						} else {
@@ -115,7 +107,8 @@
 						}
 						$aux++;
 						$output .= "<div class='panel-heading'>
-											<img src='" . $product['image_url'] . "' alt='p1' height='30px' width='30px'/> | 
+                                            <img src='" . $product['image_url'] . "' alt='logo " . $product['name'] . 
+                                            "' height='30px' width='30px'/> | 
 											<a style='color:#7a3b7a;' href='" . $product['single_product_url_type'] .
 												"?single_prod_id=" . $product['id'] . "'>" . $product['name'] . 
 											"</a>
