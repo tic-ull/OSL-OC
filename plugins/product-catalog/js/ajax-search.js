@@ -22,9 +22,10 @@ jQuery(function($) {
             let button = buttons[i];
             button.onclick = function( event ) {
               event.preventDefault();
+              $('html, body').stop().animate({ scrollTop: 40 }, 500);
               searchProducts(i + 1);
+            }
           }
-    }
       },
       error: function( jqXHR, textStatus, errorThrown ) {
         if (jqXHR.status === 404) {
@@ -53,7 +54,7 @@ jQuery(function($) {
 
   $('#fromSearchProduct').autocomplete({
     source: function (request, response) {
-      var xhrAutocomplete = $.ajax({
+      $.ajax({
         type: 'POST', 
         url: huge_it_catalog_gs_vars.ajaxurl,
         dataType: 'json',
@@ -71,8 +72,16 @@ jQuery(function($) {
       searchProducts(1);
     }
   });
+
+  $('#fromSearchAlternative').autocomplete({
+    source: huge_it_catalog_gs_vars.proprietarySoftware,
+    select: function(event) {
+      event.preventDefault();
+      searchAlternatives(1);
+    }
+  });
   /** Funciones para alternativas a */
-  function searchAlternatives() {
+  function searchAlternatives( page ) {
     $('.products-list').fadeOut(250);
     $('#dvloader').fadeIn(500);
     $.ajax({
@@ -81,12 +90,22 @@ jQuery(function($) {
       data: {
         action: 'huge_it_catalog_listAlternatives',
         from_product: document.getElementById('fromSearchAlternative').value,
+        page_number: page
       },
       success: function( data ) {
           $("#dvloader").fadeOut(1);
           $('.products-list').html( data );
           $('.products-list').fadeIn(500);
           $('.ui-autocomplete').hide();
+          let buttons = document.getElementsByClassName('at-pagination-button');
+          for ( let i = 0; i < buttons.length; i++ ) {
+            let button = buttons[i];
+            button.onclick = function( event ) {
+              event.preventDefault();
+              $('html, body').stop().animate({ scrollTop: 40 }, 500);
+              searchAlternatives(i + 1);
+            }
+          }
       },
       error: function( jqXHR, textStatus, errorThrown ) {
         if (jqXHR.status === 404) {
@@ -109,6 +128,6 @@ jQuery(function($) {
   }
   $('.show_alternatives').on('click', function(event) {
     event.preventDefault();
-    searchAlternatives();
+    searchAlternatives(1);
   });
 });

@@ -144,7 +144,7 @@
         text-align: center;
     }
 
-    .pagination-button {
+    .pagination-button, .at-pagination-button {
         text-align: center;
         width: 3%;
         height: 5%;		

@@ -190,6 +190,8 @@ function edit_catalog($id)
     global $wpdb;
     if(isset($_GET["removeslide"])){
         if($_GET["removeslide"] != ''){
+            $wpdb->query("DELETE FROM " . $wpdb->prefix . "huge_it_catalog_alternative_to
+                         WHERE id_free_software = " . $_GET['removeslide'] . " ");
             $wpdb->query("DELETE FROM ".$wpdb->prefix."huge_it_catalog_products  WHERE id = ".$_GET["removeslide"]." ");
         }
     }

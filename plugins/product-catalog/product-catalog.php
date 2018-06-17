@@ -290,13 +290,24 @@ add_action('wp_enqueue_scripts', 'huge_it_catalog_global_search_set_scripts');
  * el fichero admin-ajax.php de wordpress y los estilos del buscador
  * global.
  */
+
 function huge_it_catalog_global_search_set_scripts() {
+    
+    global $wpdb;
+    
+    $proprietary_software_query = "SELECT name FROM " . $wpdb->prefix . "huge_it_catalog_proprietary_software " . "GROUP BY name";
+    $proprietary_software = $wpdb->get_results( $proprietary_software_query, ARRAY_A );
+    $proprietary_software_names = [];
+    
+    foreach ( $proprietary_software AS $item ) {
+        $proprietary_software_names[] =  $item['name'];
+    }
 
     wp_enqueue_script('jquery-ui-autocomplete');
     wp_register_script('huge_it_catalog_gs_ajax_script', plugin_dir_url(__FILE__) . '/js/ajax-search.js', array('jquery'), true);
     wp_enqueue_script('huge_it_catalog_gs_ajax_script');
     wp_localize_script('huge_it_catalog_gs_ajax_script', 'huge_it_catalog_gs_vars',
-    ['ajaxurl'=>admin_url('admin-ajax.php')]);
+    ['ajaxurl'=>admin_url('admin-ajax.php'), 'proprietarySoftware' => $proprietary_software_names]);
     wp_enqueue_style('products', plugins_url('style/global-search.css', __FILE__));
 }
 
@@ -369,10 +380,9 @@ function huge_it_catalog_listProducts() {
             }
             // Pagination
             $output .= '<form method="post" class="global-search-pagination">';
-            for ($i = 1; $i <= $number_of_pages; $i++){
-                $output .= '<button class="pagination-button" value="' . $i . '">' . $i . '</button>';
+            for ($i = 1; $i <= $number_of_pages; $i++) {
+                $output .= '<button class="pagination-button"><a href="#fromSearchProduct">' . $i . '</a></button>';
             }
-            $output .= '</form>';
         } else {
             $output .= '<p>No se encontro el software solicitado. <a href="anadir-producto">Añadir software solicitado</a></p>';
         }
@@ -437,10 +447,10 @@ add_action( 'wp_ajax_nopriv_huge_it_catalog_listAlternatives', 'huge_it_catalog_
 add_action( 'wp_ajax_huge_it_catalog_listAlternatives', 'huge_it_catalog_listAlternatives');
 
 function huge_it_catalog_listAlternatives() {
-    // check_ajax_referer( 'huge_it_catalog_globalSearch' );
     if ( !empty( $_POST['from_product'] ) ) {
         global $wpdb;
         $search_string = sanitize_text_field( $_POST['from_product'] );
+        $page_number = $_POST['page_number'];
         $search_term = "'%" . $search_string . "%'";
         // Prepare query to retrieve products from database
         $product_query = 'SELECT p1.name, p1.image_url, p1.description, p1.id, p2.single_product_url_type
@@ -454,21 +464,17 @@ function huge_it_catalog_listAlternatives() {
                           AND at.id_free_software = p1.id 
                           AND p1.catalog_id = catalogs.id
                           AND p2.name = catalogs.name
-                          AND p1.published = "on"';
+                          AND p1.published = "on"
+                          GROUP BY p1.name';
+
+        $number_of_products = $wpdb->get_results( $product_query, ARRAY_A );
+        $product_query .= " LIMIT " . ( $page_number - 1 ) * 5 . ", 5";
         // Query
         $product_items = $wpdb->get_results( $product_query, ARRAY_A );
-        // Delete duplicated rows with duplicated names
-        $unique_product_items = array();
-        $aux = array();
-        foreach ( $product_items as $product ) {
-            if ( !in_array( $product['name'], $array )) {
-                $array[] = $product['name'];
-                $unique_product_items[] = $product;
-            }
-        }
         // Check if any products were found
-        if ( !empty( $unique_product_items ) ) {
-            foreach ( $unique_product_items as $product ) {
+        if ( !empty( $product_items ) ) {
+            $number_of_pages = ceil ( count ( $number_of_products ) / 5 );
+            foreach ( $product_items as $product ) {
                 // product
                 $output .= '<div id="product_item">';
                     // left block
@@ -486,8 +492,14 @@ function huge_it_catalog_listAlternatives() {
                     $output .= '</div>';
                 $output .= '</div>';
             }
+            // Pagination
+            $output .= '<form method="post" class="global-search-pagination">';
+            for ($i = 1; $i <= $number_of_pages; $i++){
+                $output .= '<button class="at-pagination-button" value="' . $i . '">' . $i . '</button>';
+            }
+            $output .= '</form>';
         } else {
-            $output .= '<p>No se encontro el software solicitado. <a href="anadir-producto">Añadir software solicitado</a></p>';
+            $output .= '<p>No se ha encontrado una alternativa del producto solicitado.</p>';
         }
         echo $output;
     }
