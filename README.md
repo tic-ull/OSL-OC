@@ -1,5 +1,5 @@
 # OSL-OC
-##### OSL - Open Catalog. 
+## OSL - Open Catalog. 
 Catálogo de Software de la Oficina de Sofware Libre de la Universidad de La Laguna
 
 - **Autor**: Daniel Daher Pérez
@@ -13,4 +13,24 @@ En [plugins](https://github.com/tic-ull/OSL-OC/tree/master/plugins) se encuentra
 
 * **Form Maker - ULL**: es una modificación del plugin [Form Maker](https://web-dorado.com/products/wordpress-form.html) de Web-dorado. Ha sido modificado con la intención de añadir nuevas características y mejorar las ya existentes.
 * **Huge-IT Product Catalog - ULL**: es una modificación del plugin [Huge-IT Product Catalog](https://huge-it.com/product-catalog/) de Huge-IT. Ha sido modificado con la intención de añadir nuevas características y mejorar las ya existentes.
-* **form-actualizacion-osl**: es un plugin creado por mí que se encarga de precargar los datos necesarios, desde la base de datos, de un producto del catálogo en el formulario de actualización cuando el usuario se disponga a realizar dicho formulario
+* **form-actualizacion-osl**: es un plugin creado por mí que se encarga de precargar los datos necesarios, desde la base de datos, de un producto del catálogo en el formulario de actualización cuando el usuario se disponga a realizar dicho formulario.
+
+## Implementación de nuevas funcionalidades al catálogo
+
+* **Autor:** Javier González Hernández
+
+* Realizado con motivo de las prácticas externas de la ULL en el curso 2017/18.
+
+Se han implementado las siguientes funcionalidades: 
+
+1. **Buscador global.** Antes del desarrollo de esta nueva funcionalidad solo se permitia buscar dentro de los catálogos el software libre, ahora es posible buscar desde cualquier página. Esta nueva funcionalidad ha sido implementada en el plugin **Huge-IT Product Catalog - ULL**.
+
+2. **Alternativas a.** Ahora es posible buscar alternativas libres al software propietario. Esta nueva funcionalidad ha sido implementada en el plugin **Huge-IT Product Catalog - ULL**.
+
+Se han reescrito las siguientes funcionalidades:
+
+1. **Últimos comentarios.**
+
+2. **Últimos productos.**
+
+Ahora ambas funcionalidades están implementadas como widgets de Wordpress. Se ha refactorizado el código y añadido opciones de personalización para los widgets.
